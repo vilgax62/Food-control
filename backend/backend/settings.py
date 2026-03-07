@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-x-+ju##aif2wy_nv-j@a=^*x=#51ix!)cvjkde32@0xhqx5zyw
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -39,13 +39,24 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     #apps
-    "apps.NGO",
-    'apps.restaurant', 
-    'apps.ticket',
-    'apps.account'
+    'apps.account',
+    'apps.donations',
+    'apps.NGO',
+    'apps.Restaurant',
+   
+    
+    #corss header
+    'corsheaders',
+    
+    #db
+    'django.contrib.gis',
+    
+    'phonenumber_field',
+
 ]
 
 MIDDLEWARE = [
+    "corsheaders.middleware.CorsMiddleware",
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -53,6 +64,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    
+    "django.middleware.common.CommonMiddleware",
 ]
 
 ROOT_URLCONF = 'backend.urls'
@@ -80,8 +93,12 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.contrib.gis.db.backends.postgis',
+        'NAME': 'mydb',
+        'USER' : 'postgres',
+        'PASSWORD': 'Nitesh124',
+        'HOST': 'localhost',
+        'PORT': '5432',
     }
 }
 
@@ -146,3 +163,35 @@ from firebase_admin import credentials
 cred = credentials.Certificate("backend/serviceAccountKey.json")
 firebase_admin.initialize_app(cred)
 
+
+
+
+#cross_headers
+CORS_ALLOW_ALL_ORIGINS = True
+
+
+
+import os
+
+GDAL_LIBRARY_PATH = r"C:\Users\BPW\AppData\Local\Programs\OSGeo4W\bin\gdal312.dll"
+GEOS_LIBRARY_PATH = r"C:\Users\BPW\AppData\Local\Programs\OSGeo4W\bin\geos_c.dll"
+
+
+
+
+
+
+AUTH_USER_MODEL = 'account.User'
+
+
+# JWT
+
+from datetime import timedelta
+
+SIMPLE_JWT = {
+        "ACCESS_TOKEN_LIFETIME":
+    timedelta(days=1),
+        "REFRESH_TOKEN_LIFETIME":
+    timedelta(days=7),
+        "AUTH_HEADER_TYPES":("Bearer",),
+}
