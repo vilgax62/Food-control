@@ -3,8 +3,11 @@ from rest_framework.response import Response
 from rest_framework import status
 from .serializer import RegisterSerializer ,VerifyOtpSerializer
 from .service import get_token_for_user
+from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework.permissions import IsAuthenticated
 
 
+##LOGIN
 class  SendOtpView(APIView):
     def post (self,request):
         serializer = RegisterSerializer(data = request.data)
@@ -32,3 +35,26 @@ class VerifyOtpView(APIView):
                 status=status.HTTP_200_OK
             )
         return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+
+
+##LOGOUT
+
+class LogoutView(APIView):
+    
+    permission_classes = [IsAuthenticated]
+    
+    def post(self,request):
+        try:
+            refresh_token = request.data.get("refresh")
+            token = RefreshToken(refresh_token)
+            token.blacklist()
+            
+            return Response(
+                {"message":"Logout successful"},
+                status= status.HTTP_200_OK
+            )
+        except:
+            return Response(
+                {"error":"Invalid token"},
+                status= status.HTTP_400_BAD_REQUEST
+            )

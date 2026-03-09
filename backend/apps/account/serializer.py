@@ -2,6 +2,7 @@ from rest_framework import serializers
 from.models import User , OTP
 
 class RegisterSerializer(serializers.ModelSerializer):
+    phone = serializers.CharField()
     class Meta :
         model = User
         fields = ["phone","role"]
@@ -11,18 +12,16 @@ class RegisterSerializer(serializers.ModelSerializer):
         phone = validated_data["phone"]
         role = validated_data["role"]
         
-        user, created = User.objects.get_or_create(
+        user,_ = User.objects.get_or_create(
         phone = phone,
         defaults={"role": role}
         )
-        if created:
-            
-            otp_obj = OTP.objects.create(user=user)
-        else:
-            otp_obj = OTP.objects.get(user=user)
-        otp_obj.generate_otp()
-        return user
     
+        otp_obj,_= OTP.objects.get_or_create(user=user)
+        otp_obj.generate_otp()
+        
+        return user
+        
 
 
 #VERIFY
@@ -45,8 +44,10 @@ class VerifyOtpSerializer(serializers.Serializer):
             raise serializers.ValidationError("OTP not generated")
         
         if otp_obj.expired():
+            otp_obj.delete()
             raise serializers.ValidationError("OTP expired")
-        if otp_obj.otp != otp:
+        if otp_obj.otp != otp.strip():
             raise serializers.ValidationError("OTP invalid")
+        otp_obj.delete()
         data["user"] = user
         return data

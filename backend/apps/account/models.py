@@ -35,7 +35,9 @@ class OTP(models.Model):
     
     def generate_otp(self):
         self.otp = str(random.randint(100000 , 999999))
+        self.created_at=timezone.now()
         self.save()
     
     def expired(self):
         return timezone.now() > self.created_at + timedelta(minutes=5)
+    

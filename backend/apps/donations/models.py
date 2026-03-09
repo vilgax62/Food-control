@@ -12,7 +12,7 @@ from apps.NGO.models import NGOProfile
 class Donation(models.Model):
     donated_by = models.ForeignKey(RestaurantProfile,on_delete=models.CASCADE,related_name="donations")
     accepted_by = models.ForeignKey(NGOProfile,on_delete= models.SET_NULL,null=True,blank=True ,related_name="accept_donation")
-    
+    accepted_by
     STATUS_CHOICE = (('PENDING','Pending'),
                     ('ACCEPTED','Accepted'),
                     ('PICKED_UP','Pick up'),
