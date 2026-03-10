@@ -151,8 +151,16 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.BasicAuthentication',
         'rest_framework.authentication.SessionAuthentication',
         'rest_framework_simplejwt.authentication.JWTAuthentication',
-    
-    ]
+        ],
+    'DEFAULT_THROTTLE_CLASSES':[
+        "rest_framework.throttling.AnonRateThrottle",
+        "rest_framework.throttling.UserRateThrottle",
+    ],
+    "DEFAULT_THROTTLE_RATES":{
+        "anon":"10/minute",
+        "user":"20/minute",
+        "otp":"3/minute",
+    }
 }
 
 

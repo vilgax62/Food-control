@@ -2,13 +2,15 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from .serializer import RegisterSerializer ,VerifyOtpSerializer
-from .service import get_token_for_user
+from .function.service import get_token_for_user
+from .function.RateLimit import RateLimit
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.permissions import IsAuthenticated
 
 
 ##LOGIN
 class  SendOtpView(APIView):
+    throttle_classes = [RateLimit]
     def post (self,request):
         serializer = RegisterSerializer(data = request.data)
         if serializer.is_valid():
@@ -38,7 +40,6 @@ class VerifyOtpView(APIView):
 
 
 ##LOGOUT
-
 class LogoutView(APIView):
     
     permission_classes = [IsAuthenticated]
