@@ -1,6 +1,4 @@
 new/
 serviceAccountkey.json
 __pycache__/
-db.sqlite3
-manage.py
-settings.py
+.env
