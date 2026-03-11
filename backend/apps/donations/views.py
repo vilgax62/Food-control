@@ -14,6 +14,13 @@ class DonationViewSet(viewsets.ModelViewSet):
     queryset = Donation.objects.all()
     serializer_class=DonationSerializer
     permission_classes = [IsAuthenticated]
+    def get_queryset(self):
+        user = self.request.user
+        if hasattr(user,"restaurant"):
+            return Donation.objects.filter(donated_by__user=user)
+        if hasattr(user,"ngoprofile"):
+            return Donation.objects.filter(status= "PENDING")
+        return Donation.objects.none()
     def perform_create(self, serializer):
         if not hasattr(self.request.user,"restaurantprofile"):
             return Response({"error":"Only restaurant can create donation"})
