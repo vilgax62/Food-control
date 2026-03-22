@@ -10,7 +10,6 @@ from django.conf import settings
 # Create your models here.
 
 #user
-
 class User(AbstractUser):
     username = None
     phone = PhoneNumberField("Phone Number ", region = "IN",unique=True,)
@@ -18,6 +17,7 @@ class User(AbstractUser):
                 ('NGO','Ngo'),
                 ('RESTAURANT','Restaurant'))
     role = models.CharField(max_length=20,choices=ROLE_CHOICE,default= 'NGO')
+    fcm_token = models.TextField(null= True,blank=True)
     
     USERNAME_FIELD ='phone'
     REQUIRED_FIELDS =[]
@@ -27,17 +27,4 @@ class User(AbstractUser):
     
     
     
-#OTP
-class OTP(models.Model):
-    user = models.OneToOneField(settings.AUTH_USER_MODEL,on_delete=models.CASCADE)
-    otp = models.CharField(max_length=6)
-    created_at = models.DateTimeField(auto_now_add=True)
-    
-    def generate_otp(self):
-        self.otp = str(random.randint(100000 , 999999))
-        self.created_at=timezone.now()
-        self.save()
-    
-    def expired(self):
-        return timezone.now() > self.created_at + timedelta(minutes=5)
-    
+

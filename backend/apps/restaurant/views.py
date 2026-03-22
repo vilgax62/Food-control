@@ -12,7 +12,7 @@ class RestaurantProfileViewSet(viewsets.ModelViewSet):
     
     #restaurant can only there profile / only logged user profile can see
     def get_queryset(self):
-        return RestaurantProfile.objects.filter(user = self.request.data)
+        return RestaurantProfile.objects.filter(user = self.request.user)
     
     #extra attachment like user logged in profile 
     def perform_create(self, serializer):

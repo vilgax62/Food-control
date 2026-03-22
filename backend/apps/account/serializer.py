@@ -1,6 +1,13 @@
 from rest_framework import serializers
-from.models import User , OTP
+from.models import User 
+from .function.sms_service import send_otp_sms
+from .tasks import send_otp_task
+from django.conf import settings
+import random
+from django.core.cache import cache
 
+def generate_otp():
+        return str(random.randint(100000 , 999999))
 class RegisterSerializer(serializers.ModelSerializer):
     phone = serializers.CharField()
     class Meta :
@@ -17,9 +24,17 @@ class RegisterSerializer(serializers.ModelSerializer):
         defaults={"role": role}
         )
     
-        otp_obj,_= OTP.objects.get_or_create(user=user)
-        otp_obj.generate_otp()
+        otp = generate_otp()
+
+
+# redis me save hoga otp for 5 min 
+        cache.set(f"otp:{phone}",otp,timeout=300)
         
+        if settings.DEBUG :
+            print("OTP_DEBUG",otp)
+        else:
+        # sms send
+            send_otp_task.delay(str(phone),otp)
         return user
         
 
@@ -38,16 +53,14 @@ class VerifyOtpSerializer(serializers.Serializer):
             user = User.objects.get(phone=phone)
         except User.DoesNotExist:
             raise serializers.ValidationError("User not found")
-        try:
-            otp_obj = OTP.objects.get(user=user)
-        except OTP.DoesNotExist:
-            raise serializers.ValidationError("OTP not generated")
+
+        store_otp = cache.get(f"otp:{phone}")
+    
         
-        if otp_obj.expired():
-            otp_obj.delete()
+        if not store_otp:
             raise serializers.ValidationError("OTP expired")
-        if otp_obj.otp != otp.strip():
+        if store_otp!= otp.strip():
             raise serializers.ValidationError("OTP invalid")
-        otp_obj.delete()
+        cache.delete(f"otp:{phone}")
         data["user"] = user
         return data

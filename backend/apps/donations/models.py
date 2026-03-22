@@ -75,10 +75,13 @@ class Donation(models.Model):
         if self.search_radius < self.max_radius:
             self.search_radius += self.radius_increment
             self.expiry_time = timezone.now() + timedelta(minutes=30)
+            self.save()
+            return "extended"
         else:
             self.status = "EXPIRED"
             self.is_active = False
-        self.save()
+            self.save()
+            return "expired"
     
     
     def __str__(self):

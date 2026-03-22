@@ -15,6 +15,7 @@ from dotenv import load_dotenv
 import os
 
 
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -47,6 +48,13 @@ INSTALLED_APPS = [
     'apps.donations',
     'apps.NGO',
     'apps.Restaurant',
+    'apps.notification',
+    
+    
+    # service
+    
+    'channels',
+    'django_celery_beat',
    
     
     #corss header
@@ -158,13 +166,16 @@ REST_FRAMEWORK = {
     'DEFAULT_THROTTLE_CLASSES':[
         "rest_framework.throttling.AnonRateThrottle",
         "rest_framework.throttling.UserRateThrottle",
+        "apps.account.function.RateLimit.RateLimit",
     ],
     "DEFAULT_THROTTLE_RATES":{
         "anon":"10/minute",
         "user":"20/minute",
-        "otp":"3/minute",
+        "otp" : "3/minute"
     }
 }
+
+
 
 
 
@@ -206,4 +217,46 @@ SIMPLE_JWT = {
         "REFRESH_TOKEN_LIFETIME":
     timedelta(days=7),
         "AUTH_HEADER_TYPES":("Bearer",),
+}
+
+
+# sms
+
+FAST2SMS_API_KEY = os.getenv("API_KEY")
+
+
+#redis (celery broker)
+
+CELERY_BROKER_URL = os.getenv("REDIS")
+CELERY_ACCEPT_CONTENT= ["json"]
+CELERY_TASK_SERIALIZER = "json"
+
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": "redis://127.0.0.1:6379/1", 
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",}}}
+
+
+
+#celery-beat
+
+CELERY_BEAT_SCHEDULE = {
+    "check-donation-every-1-min":{
+        "task":"apps.donations.tasks.check_and_update_donations",
+        "schedule":60.0,
+    },
+}
+
+
+ASGI_APPLICATION = "backend.asgi.application"
+
+CHANNEL_LAYER ={
+    "default":{
+        "BACKEND":"channels_redis.core.RedisChannelLayer",
+        "CONFIG":{
+            "hosts":[("127.0.0.1",6379)],
+        },
+    },
 }

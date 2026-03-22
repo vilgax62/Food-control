@@ -6,6 +6,7 @@ from .function.service import get_token_for_user
 from .function.RateLimit import RateLimit
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.decorators import api_view
 
 
 ##LOGIN
@@ -59,3 +60,14 @@ class LogoutView(APIView):
                 {"error":"Invalid token"},
                 status= status.HTTP_400_BAD_REQUEST
             )
+
+
+#fcm push notification 
+
+@api_view(["POST"])
+def save_fcm_token(request):
+    user = request.user
+    token = request.data.get("token")
+    user.fcm_token  = token
+    user.save()
+    return Response({"message":"token saved"})
